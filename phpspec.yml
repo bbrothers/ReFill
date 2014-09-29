@@ -1,0 +1,4 @@
+suites:
+
+  refill_suite:
+    namespace: ReFill
