@@ -46,11 +46,11 @@ if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                 placeholder : "Search for a name",
                 minimumInputLength : 1,
                 ajax : {
-                    url : "/example.php",
+                    url : "/",
                     dataType : 'json',
                     data : function (term) {
                         return {
-                            q : term
+                            term : term
                         };
                     }, results : function (data, page) {
                         return {results : data};
