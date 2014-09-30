@@ -14,6 +14,16 @@ $connection = new Redis([
     "port"   => 6379
 ]);
 
+$refill = new ReFill($connection);
+
+if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    if(! empty($_GET['term'])) {
+        header('Content-Type: application/json');
+        echo json_encode($refill->match('names', $_GET['term']));
+        exit();
+    }
+}
+
 $faker = Faker\Factory::create();
 
 $list = [];
@@ -22,15 +32,8 @@ for ($i = 0; $i < 1000; $i++) {
     $list[] = ['id' => $i, 'name' => $faker->name];
 }
 
-$refill = new ReFill($connection);
-
 $refill->cache('names', ReFillCollection::fromArray($list));
 
-if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-    if(! empty($_GET['term'])) {
-        return json_encode($refill->match('names', $_GET['term']));
-    }
-}
 ?>
 <!doctype html>
 <html class="no-js" lang="">
@@ -52,7 +55,8 @@ if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQU
                         return {
                             term : term
                         };
-                    }, results : function (data, page) {
+                    },
+                    results : function (data, page) {
                         return {results : data};
                     }
                 }

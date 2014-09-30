@@ -24,8 +24,10 @@ class ReFillable implements JsonSerializable
     public function __construct($uniqueId, $string)
     {
         $this->uniqueId = $uniqueId;
-        $this->text     = $this->clean($string);
-        $this->words    = $this->discardInvalidWords($this->splitWords($string));
+        $this->text     = $string;
+        $this->words    = $this->discardInvalidWords(
+            $this->splitWords($this->clean($string))
+        );
         $this->index    = $this->buildWordsIndex($this->words);
     }
 
@@ -55,8 +57,8 @@ class ReFillable implements JsonSerializable
     public function buildIndex($word)
     {
         $letters = [];
-        for ($i = 0, $len = strlen($word); $i < $len; $i++) {
-            $letters[$i] = substr($word, 0, $i + 1);
+        for ($i = $this->minWordLength, $len = strlen($word); $i <= $len; $i++) {
+            $letters[$i] = substr($word, 0, $i);
         }
         return $letters;
     }
@@ -81,6 +83,6 @@ class ReFillable implements JsonSerializable
 
     public function __toString()
     {
-        return json_encode($this->text);
+        return $this->text;
     }
 }

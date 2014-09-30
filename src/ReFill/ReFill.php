@@ -21,22 +21,45 @@ class ReFill
         }
     }
 
-    protected function saveIndex($key, $uniqueId, array $fragments)
+    protected function saveIndex($key, $uniqueId, array $wordIndex)
     {
-        foreach ($fragments as $index => $fragment) {
-            $this->redis->zAdd('refill-index:' . $key . ':' . $fragment, $index, $uniqueId);
+        foreach($wordIndex as $word) {
+            foreach ($word as $index => $fragment) {
+                $this->redis->zAdd('refill-index:' . $key . ':' . $fragment, $index, $uniqueId);
+            }
         }
     }
 
     public function match($key, $fragment)
     {
-        $uniqueIds = $this->findFragment($key, $fragment);
-        $list = $this->redis->hmget('refill-data:' . $key, implode(', ', $uniqueIds));
-        return $list;
+        $uniqueIds = $this->findFragment($key, $this->sanitize($fragment));
+        if(! empty($uniqueIds)) {
+            $list = $this->redis->hmget('refill-data:' . $key, $uniqueIds);
+
+            return $this->formatResponse($uniqueIds, $list);
+        }
+        return [];
     }
 
     protected function findFragment($key, $fragment, $limit = -1)
     {
         return $this->redis->zRange('refill-index:' . $key . ':' . $fragment, strlen($fragment) * -1, $limit);
+    }
+
+    private function sanitize($fragment)
+    {
+        return strtolower(trim(preg_replace('/[^a-zA-Z0-9- ]/', '', $fragment)));
+    }
+
+    private function formatResponse($uniqueIds, $list)
+    {
+        $results = [];
+        foreach($uniqueIds as $index => $uniqueId) {
+            $results[] = [
+                'text' => $list[$index],
+                'id' => (int) $uniqueId
+            ];
+        }
+        return $results;
     }
 }
