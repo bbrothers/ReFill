@@ -5,6 +5,7 @@ namespace spec\ReFill;
 use PhpSpec\ObjectBehavior;
 use Predis\Client;
 use Prophecy\Argument;
+use ReFill\ReFillable;
 use ReFill\ReFillCollection;
 
 class ReFillSpec extends ObjectBehavior
@@ -22,7 +23,7 @@ class ReFillSpec extends ObjectBehavior
         $this->shouldHaveType('ReFill\ReFill');
     }
 
-    function it_should_cache_a_list()
+    function it_should_catalog_a_list()
     {
 
         $names = [
@@ -34,5 +35,10 @@ class ReFillSpec extends ObjectBehavior
         $this->catalog('names', ReFillCollection::fromKeyValue($names));
 
         $this->match('joh')->shouldBe($names[0]);
+    }
+
+    function it_should_match_a_word_fragment()
+    {
+
     }
 }
