@@ -28,7 +28,7 @@ $faker = Faker\Factory::create();
 
 $list = [];
 
-for ($i = 0; $i < 5000; $i++) {
+for ($i = 0; $i < 10000; $i++) {
     $list[] = ['id' => $i, 'name' => $faker->name];
 }
 

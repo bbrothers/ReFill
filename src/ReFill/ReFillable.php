@@ -39,7 +39,8 @@ class ReFillable implements JsonSerializable
 
     public function splitWords($string)
     {
-        return array_filter(preg_split('/[-\s]/', $string));
+        $string = str_replace('-', ' ', $string);
+        return explode(' ', $string);
     }
 
     public function buildIndex($word)
@@ -53,10 +54,13 @@ class ReFillable implements JsonSerializable
 
     public function discardInvalidWords($words)
     {
-        return array_filter($words, function($word) {
-            return ! in_array($word, $this->stopWords) &&
-                   strlen($word) >= $this->minWordLength;
-        });
+        $words = array_diff($words, $this->stopWords);
+        foreach($words as $index => $word) {
+            if (strlen($word) < $this->minWordLength) {
+                unset($words[$index]);
+            }
+        }
+        return $words;
     }
 
     public function jsonSerialize()
