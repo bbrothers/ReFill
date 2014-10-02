@@ -13,19 +13,24 @@ class ReFill
         $this->redis = $connection;
     }
 
-    public function cache($key, ReFillCollection $collection)
+    public function catalog($key, ReFillCollection $collection)
     {
         foreach($collection as $data) {
-            $this->redis->hset('refill-data:' . $key, $data->uniqueId, (string) $data);
-            $this->saveIndex($key, $data->uniqueId, $data->index);
+            $this->redis->hset('refill-data:' . $key, $data->hash, (string) $data);
+            $this->saveIndex($key, $data);
         }
     }
 
-    protected function saveIndex($key, $uniqueId, array $wordIndex)
+    protected function saveIndex($key, ReFillable $data)
     {
-        foreach($wordIndex as $word) {
-            foreach ($word as $index => $fragment) {
-                $this->redis->zAdd('refill-index:' . $key . ':' . $fragment, $index, $uniqueId);
+        foreach($data->words as $word) {
+            if(! $fragments = $this->redis->smembers($word)) {
+                $fragments = $data->buildIndex($word);
+                $this->redis->sadd($word, $fragments);
+            }
+            foreach ($fragments as $index => $fragment) {
+                $this->redis->zAdd('refill-index:' . $key . ':' . $fragment, $index, $data->hash);
+                $this->redis->zAdd('refill-rev:' . $key . ':' . $data->hash, $index, $fragment);
             }
         }
     }
@@ -33,10 +38,11 @@ class ReFill
     public function match($key, $fragment)
     {
         $uniqueIds = $this->findFragment($key, $this->sanitize($fragment));
+
         if(! empty($uniqueIds)) {
             $list = $this->redis->hmget('refill-data:' . $key, $uniqueIds);
 
-            return $this->formatResponse($uniqueIds, $list);
+            return $this->formatResponse($list);
         }
         return [];
     }
@@ -51,14 +57,11 @@ class ReFill
         return strtolower(trim(preg_replace('/[^a-zA-Z0-9- ]/', '', $fragment)));
     }
 
-    private function formatResponse($uniqueIds, $list)
+    private function formatResponse($list)
     {
         $results = [];
-        foreach($uniqueIds as $index => $uniqueId) {
-            $results[] = [
-                'text' => $list[$index],
-                'id' => (int) $uniqueId
-            ];
+        foreach($list as $data) {
+            $results[] = json_decode($data);
         }
         return $results;
     }

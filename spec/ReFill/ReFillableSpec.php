@@ -47,17 +47,17 @@ class ReFillableSpec extends ObjectBehavior
         $this->buildIndex('programming')
             ->shouldReturn(
                 [
-                    'p',
-                    'pr',
-                    'pro',
-                    'prog',
-                    'progr',
-                    'progra',
-                    'program',
-                    'programm',
-                    'programmi',
-                    'programmin',
-                    'programming',
+//                    'p',
+//                    'pr',
+                    3  => 'pro',
+                    4  => 'prog',
+                    5  => 'progr',
+                    6  => 'progra',
+                    7  => 'program',
+                    8  => 'programm',
+                    9  => 'programmi',
+                    10 => 'programmin',
+                    11 =>'programming',
                 ]
             );
     }

@@ -14,6 +14,7 @@ class ReFillable implements JsonSerializable
         'where', 'who', 'will', 'with', 'the', 'www'
     ];
 
+    public $hash;
     public $uniqueId;
     public $text;
     public $words;
@@ -25,10 +26,10 @@ class ReFillable implements JsonSerializable
     {
         $this->uniqueId = $uniqueId;
         $this->text     = $string;
+        $this->hash     = md5(json_encode($this));
         $this->words    = $this->discardInvalidWords(
             $this->splitWords($this->clean($string))
         );
-        $this->index    = $this->buildWordsIndex($this->words);
     }
 
     public function clean($string)
@@ -39,19 +40,6 @@ class ReFillable implements JsonSerializable
     public function splitWords($string)
     {
         return array_filter(preg_split('/[-\s]/', $string));
-    }
-
-    public function buildWordsIndex($words)
-    {
-
-        $index = [];
-
-        foreach ($words as $word) {
-            $index[$word] = $this->buildIndex($word);
-        }
-
-        return $index;
-
     }
 
     public function buildIndex($word)
@@ -74,15 +62,13 @@ class ReFillable implements JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'uniqueId' => $this->uniqueId,
+            'id'       => $this->uniqueId,
             'text'     => $this->text,
-            'words'    => $this->words,
-            'index'    => $this->index,
         ];
     }
 
     public function __toString()
     {
-        return $this->text;
+        return json_encode($this);
     }
 }

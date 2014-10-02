@@ -31,7 +31,7 @@ class ReFillSpec extends ObjectBehavior
             2 => 'Bob Smith'
         ];
 
-        $this->cache('names', ReFillCollection::fromKeyValue($names));
+        $this->catalog('names', ReFillCollection::fromKeyValue($names));
 
         $this->match('joh')->shouldBe($names[0]);
     }

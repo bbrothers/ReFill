@@ -28,11 +28,11 @@ $faker = Faker\Factory::create();
 
 $list = [];
 
-for ($i = 0; $i < 1000; $i++) {
+for ($i = 0; $i < 5000; $i++) {
     $list[] = ['id' => $i, 'name' => $faker->name];
 }
 
-$refill->cache('names', ReFillCollection::fromArray($list));
+$refill->catalog('names', ReFillCollection::fromArray($list));
 
 ?>
 <!doctype html>
