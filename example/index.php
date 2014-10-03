@@ -28,7 +28,7 @@ $faker = Faker\Factory::create();
 
 $list = [];
 
-for ($i = 0; $i < 10000; $i++) {
+for ($i = 0; $i < 1000; $i++) {
     $list[] = ['id' => $i, 'name' => $faker->name];
 }
 
@@ -56,8 +56,15 @@ $refill->catalog('names', ReFillCollection::fromArray($list));
                             term : term
                         };
                     },
-                    results : function (data, page) {
-                        return {results : data};
+                    results : function (results) {
+                        return {
+                            results : results.map(function(item) {
+                                return {
+                                    id : item.id,
+                                    text : item.name
+                                };
+                            })
+                        }
                     }
                 }
             });

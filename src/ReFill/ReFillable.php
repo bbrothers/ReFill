@@ -1,18 +1,7 @@
-<?php
+<?php namespace ReFill;
 
-namespace ReFill;
-
-use JsonSerializable;
-
-class ReFillable implements JsonSerializable
+class ReFillable
 {
-
-    protected $stopWords = [
-        'I', 'a', 'about', 'an', 'are', 'as', 'at', 'be', 'by',
-        'com', 'for', 'from', 'how', 'in', 'is', 'if', 'it', 'of', 'on',
-        'or', 'that', 'the', 'this', 'to', 'was', 'what', 'when', 'up',
-        'where', 'who', 'will', 'with', 'the', 'www'
-    ];
 
     public $hash;
     public $uniqueId;
@@ -21,58 +10,37 @@ class ReFillable implements JsonSerializable
     public $index;
 
     protected $minWordLength = 3;
+    protected $semantic;
 
-    public function __construct($uniqueId, $string)
+    public function __construct($uniqueId, $string, JsonEncoded $object)
     {
+        $this->semantic = new Semantic;
+
         $this->uniqueId = $uniqueId;
         $this->text     = $string;
-        $this->hash     = md5(json_encode($this));
-        $this->words    = $this->discardInvalidWords(
-            $this->splitWords($this->clean($string))
-        );
+        $this->object   = $object->encoded();
+        $this->hash     = md5($this->object);
+        $this->words    = $this->semantic->getValidWords($string, $this->minWordLength);
     }
 
-    public function clean($string)
+    /**
+     * @return int
+     */
+    public function getMinWordLength()
     {
-        return strtolower(trim(preg_replace('/[^a-zA-Z0-9- ]/', '', $string)));
+        return $this->minWordLength;
     }
 
-    public function splitWords($string)
+    /**
+     * @param int $minWordLength
+     */
+    public function setMinWordLength($minWordLength)
     {
-        $string = str_replace('-', ' ', $string);
-        return explode(' ', $string);
-    }
-
-    public function buildIndex($word)
-    {
-        $letters = [];
-        for ($i = $this->minWordLength, $len = strlen($word); $i <= $len; $i++) {
-            $letters[$i] = substr($word, 0, $i);
-        }
-        return $letters;
-    }
-
-    public function discardInvalidWords($words)
-    {
-        $words = array_diff($words, $this->stopWords);
-        foreach($words as $index => $word) {
-            if (strlen($word) < $this->minWordLength) {
-                unset($words[$index]);
-            }
-        }
-        return $words;
-    }
-
-    public function jsonSerialize()
-    {
-        return [
-            'id'       => $this->uniqueId,
-            'text'     => $this->text,
-        ];
+        $this->minWordLength = $minWordLength;
     }
 
     public function __toString()
     {
-        return json_encode($this);
+        return $this->object;
     }
 }

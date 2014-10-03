@@ -6,7 +6,6 @@ use ArrayAccess;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-use Traversable;
 
 class ReFillCollection implements ArrayAccess, Countable, IteratorAggregate
 {
@@ -23,7 +22,7 @@ class ReFillCollection implements ArrayAccess, Countable, IteratorAggregate
     {
 
         foreach ($items as &$item) {
-            $item = new ReFillable($item[$uniqueId], $item[$text]);
+            $item = new ReFillable($item[$uniqueId], $item[$text], new JsonEncoded($item));
         }
 
         return new self($items);
@@ -34,18 +33,22 @@ class ReFillCollection implements ArrayAccess, Countable, IteratorAggregate
     {
 
         foreach ($items as $key => &$item) {
-            $item = new ReFillable($key, $item);
+            $item = new ReFillable($key, $item, new JsonEncoded($item));
         }
 
         return new self($items);
 
     }
 
-    public static function fromObject(array $items, $uniqueId = 'id', $text = 'name')
+    public static function fromObject($items, $uniqueId = 'id', $text = 'name')
     {
 
+        if (! is_object($items)) {
+            throw new \InvalidArgumentException('The fromObject method requires, you to provide an object.');
+        }
+
         foreach ($items as &$item) {
-            $item = new ReFillable($item->{$uniqueId}, $item->{$text});
+            $item = new ReFillable($item->{$uniqueId}, $item->{$text}, new JsonEncoded($item));
         }
 
         return new self($items);
