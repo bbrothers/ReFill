@@ -10,15 +10,17 @@ class Semantic
         'where', 'who', 'will', 'with', 'the', 'www'
     ];
 
+    protected $minWordLength = 0;
+
     public function sanitize($string)
     {
         return strtolower(trim(preg_replace('/[^a-zA-Z0-9- ]/', '', $string)));
     }
 
-    public function buildIndex($word, $minWordLength)
+    public function buildIndex($word)
     {
         $letters = [];
-        for ($i = $minWordLength, $len = strlen($word); $i <= $len; $i++) {
+        for ($i = 1, $len = strlen($word); $i <= $len; $i++) {
             $letters[$i] = substr($word, 0, $i);
         }
         return $letters;
@@ -30,22 +32,39 @@ class Semantic
         return explode(' ', $string);
     }
 
-    public function discardInvalidWords($words, $minWordLength)
+    public function discardInvalidWords($words)
     {
         $words = array_diff($words, $this->stopWords);
         foreach($words as $index => $word) {
-            if (strlen($word) < $minWordLength) {
+            if (strlen($word) < $this->minWordLength) {
                 unset($words[$index]);
             }
         }
         return $words;
     }
 
-    public function getValidWords($string, $minWordLength)
+    public function getValidWords($string)
     {
         return $this->discardInvalidWords(
-            $this->splitWords($string),
-            $minWordLength
+            $this->splitWords($this->sanitize($string)),
+            $this->minWordLength
         );
     }
+
+    /**
+     * @return int
+     */
+    public function getMinWordLength()
+    {
+        return $this->minWordLength;
+    }
+
+    /**
+     * @param int $minWordLength
+     */
+    public function setMinWordLength($minWordLength)
+    {
+        $this->minWordLength = $minWordLength;
+    }
+
 }

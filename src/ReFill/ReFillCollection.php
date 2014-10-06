@@ -1,6 +1,4 @@
-<?php
-
-namespace ReFill;
+<?php namespace ReFill;
 
 use ArrayAccess;
 use ArrayIterator;
@@ -43,13 +41,15 @@ class ReFillCollection implements ArrayAccess, Countable, IteratorAggregate
     public static function fromObject($items, $uniqueId = 'id', $text = 'name')
     {
 
-        if (! is_object($items)) {
-            throw new \InvalidArgumentException('The fromObject method requires, you to provide an object.');
-        }
-
         foreach ($items as &$item) {
+
+            if (! is_object($item)) {
+               throw new \InvalidArgumentException('The fromObject method requires, you to provide an array/collection of objects.');
+            }
+
             $item = new ReFillable($item->{$uniqueId}, $item->{$text}, new JsonEncoded($item));
         }
+
 
         return new self($items);
 

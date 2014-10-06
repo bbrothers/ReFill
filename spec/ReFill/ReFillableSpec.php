@@ -4,14 +4,15 @@ namespace spec\ReFill;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use ReFill\JsonEncoded;
 
 class ReFillableSpec extends ObjectBehavior
 {
-    function let()
+    function let(JsonEncoded $json)
     {
         $uniqueId = 0;
         $string = "John Smith";
-        $this->beConstructedWith($uniqueId, $string);
+        $this->beConstructedWith($uniqueId, $string, $json);
     }
     function it_is_initializable()
     {

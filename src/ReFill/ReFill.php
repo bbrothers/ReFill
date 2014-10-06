@@ -19,6 +19,12 @@ class ReFill
         $this->setNamespace($this->redis->getOptions());
     }
 
+    public function setMinWordLength($minWordLength)
+    {
+
+        $this->semantic->setMinWordLength($minWordLength);
+    }
+
     public function invalidate($key, ReFillCollection $collection)
     {
         foreach($collection as $element) {
@@ -55,9 +61,9 @@ class ReFill
         }
     }
 
-    public function match($key, $fragment)
+    public function match($key, $fragment, $limit = -1)
     {
-        $uniqueIds = $this->findFragment($key, $this->semantic->sanitize($fragment));
+        $uniqueIds = $this->findFragment($key, $this->semantic->sanitize($fragment), $limit);
 
         if(! empty($uniqueIds)) {
             $list = $this->fetchElement($key, $uniqueIds);
@@ -73,7 +79,7 @@ class ReFill
         return $this->fetchMatchesFromIndex($key, $fragment, $limit);
     }
 
-    private function formatResponse($list)
+    protected function formatResponse($list)
     {
         $results = [];
         foreach($list as $element) {
@@ -87,12 +93,12 @@ class ReFill
      * @param            $word
      * @return array
      */
-    public function getWordFragments(ReFillable $element, $word)
+    protected function getWordFragments(ReFillable $element, $word)
     {
 
-        if ( ! $fragments = $this->redis->smembers($word)) {
-            $fragments = $this->semantic->buildIndex($word, $element->getMinWordLength());
-            $this->redis->sadd($word, $fragments);
+        if ( ! $fragments = $this->redis->smembers($this->namespace . ':lookup:' . $word)) {
+            $fragments = $this->semantic->buildIndex($word);
+            $this->redis->sadd($this->namespace . ':lookup:' . $word, $fragments);
             return $fragments;
         }
         return $fragments;
@@ -188,7 +194,10 @@ class ReFill
     protected function fetchMatchesFromIndex($key, $fragment, $limit)
     {
 
-        return $this->redis->zRange($this->namespace . ':index:' . $key . ':' . $fragment, strlen($fragment) * -1,
-            $limit);
+        return $this->redis->zRange(
+            $this->namespace . ':index:' . $key . ':' . $fragment,
+            strlen($fragment),
+            $limit
+        );
     }
 }

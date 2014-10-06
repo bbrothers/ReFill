@@ -40,12 +40,12 @@ class SemanticTest extends PHPUnit_Framework_TestCase
     {
         $semantic = new Semantic;
 
-        $actual = $semantic->buildIndex('programming', 3);
+        $actual = $semantic->buildIndex('programming');
 
         $this->assertEquals(
                  [
-//                    'p',
-//                    'pr',
+                     1  => 'p',
+                     2  => 'pr',
                      3  => 'pro',
                      4  => 'prog',
                      5  => 'progr',
@@ -54,7 +54,7 @@ class SemanticTest extends PHPUnit_Framework_TestCase
                      8  => 'programm',
                      9  => 'programmi',
                      10 => 'programmin',
-                     11 =>'programming',
+                     11 => 'programming',
                  ],
                  $actual
              );

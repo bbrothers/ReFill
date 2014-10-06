@@ -19,20 +19,22 @@ $refill = new ReFill($connection);
 if(!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
     if(! empty($_GET['term'])) {
         header('Content-Type: application/json');
-        echo json_encode($refill->match('names', $_GET['term']));
+        echo json_encode($refill->match('names', $_GET['term'], 50));
         exit();
     }
 }
 
-$faker = Faker\Factory::create();
+if(! empty($_GET['seed'])) {
+    $faker = Faker\Factory::create();
 
-$list = [];
+    $list = [];
 
-for ($i = 0; $i < 1000; $i++) {
-    $list[] = ['id' => $i, 'name' => $faker->name];
+    for ($i = 0; $i < 10000; $i++) {
+        $list[] = ['id' => $i, 'name' => $faker->name];
+    }
+
+    $refill->catalog('names', ReFillCollection::fromArray($list));
 }
-
-$refill->catalog('names', ReFillCollection::fromArray($list));
 
 ?>
 <!doctype html>
