@@ -9,12 +9,12 @@ class ReFill
     protected $semantic;
     private $namespace;
 
-    public function __construct(Client $connection)
+    public function __construct(Client $connection, Semantic $semantic)
     {
 
         $this->redis = $connection;
 
-        $this->semantic = new Semantic;
+        $this->semantic = $semantic;
 
         $this->setNamespace($this->redis->getOptions());
     }

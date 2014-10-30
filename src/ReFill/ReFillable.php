@@ -13,7 +13,7 @@ class ReFillable
 
     public function __construct($uniqueId, $string, JsonEncoded $object)
     {
-        $this->semantic = new Semantic;
+        $this->semantic = new ReFillSemantic;
 
         $this->uniqueId = $uniqueId;
         $this->text     = $string;

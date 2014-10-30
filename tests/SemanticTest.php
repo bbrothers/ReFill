@@ -1,6 +1,6 @@
 <?php
 
-use ReFill\Semantic;
+use ReFill\ReFillSemantic;
 
 class SemanticTest extends PHPUnit_Framework_TestCase
 {
@@ -8,7 +8,7 @@ class SemanticTest extends PHPUnit_Framework_TestCase
     public function test_that_sanitize_removes_special_characters()
     {
 
-        $semantic = new Semantic;
+        $semantic = new ReFillSemantic;
 
         $actual = $semantic->sanitize("/user/test/I am a long url's_-?ASDF@£$%£%^testé.html");
          $this->assertEquals("usertesti am a long urls-asdftesthtml", $actual);
@@ -20,7 +20,7 @@ class SemanticTest extends PHPUnit_Framework_TestCase
     public function test_it_splits_a_string_into_words()
     {
 
-        $semantic = new Semantic;
+        $semantic = new ReFillSemantic;
 
         $actual = $semantic->splitWords(
             "Always code as if the guy who ends up " .
@@ -38,7 +38,7 @@ class SemanticTest extends PHPUnit_Framework_TestCase
 
     public function test_it_builds_an_index_array_for_a_word()
     {
-        $semantic = new Semantic;
+        $semantic = new ReFillSemantic;
 
         $actual = $semantic->buildIndex('programming');
 
@@ -63,7 +63,7 @@ class SemanticTest extends PHPUnit_Framework_TestCase
     public function test_it_discards_stop_words()
     {
 
-        $semantic = new Semantic;
+        $semantic = new ReFillSemantic;
 
         $actual = $semantic->discardInvalidWords(
             [
